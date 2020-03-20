@@ -1,0 +1,11 @@
+description = "Bio utils"
+
+project.ext.baseScriptDir = new File(project.buildscript.sourceFile, "../../buildCommon/");
+apply from: new File(project.baseScriptDir, "/common.gradle")
+
+dependencies {
+	compile ":neurotec-core"
+	compile ":neurotec-licensing"
+	compile ":jna"
+	compile project.modules."commons-io"
+}

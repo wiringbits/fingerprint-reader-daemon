@@ -1,0 +1,24 @@
+run {
+	classpath = project.sourceSets.main.runtimeClasspath
+	standardInput = System.in
+	systemProperties "jna.library.path": System.properties["jna.library.path"], "java.library.path": System.properties["java.library.path"]
+}
+
+// Integrate with NetBeans.
+task debug(dependsOn: classes, type: JavaExec) {
+	main = project.mainClassName
+	classpath = sourceSets.main.runtimeClasspath
+	standardInput = System.in
+	ignoreExitValue = true
+	debug = true
+	systemProperties "jna.library.path": System.properties["jna.library.path"], "java.library.path": System.properties["java.library.path"]
+}
+
+jar {
+	manifest {
+		attributes(
+			"Class-Path": generateClasspath(),
+			"Main-Class": mainClassName
+		)
+	}
+}

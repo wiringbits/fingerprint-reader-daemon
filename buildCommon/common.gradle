@@ -1,0 +1,172 @@
+// ============================================================================
+// Main
+// ============================================================================
+
+group = 'com.neurotec.samples'
+version = '11.1.0.0'
+
+// ============================================================================
+// Java
+// ============================================================================
+
+apply plugin: 'java'
+
+project.ext.productRootDir = ".."
+project.ext.productBinDir = new File(project.productRootDir, "Bin")
+project.ext.productBinJavaDir = new File(project.productBinDir, "Java")
+project.ext.projectScriptSourceDir = new File(project.projectDir, "src/main/scripts")
+project.ext.artifactName = project.archivesBaseName + ".jar"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+jar {
+	version = null;
+	manifest {
+		attributes(
+			"Specification-Title": project.description,
+			"Specification-Vendor": "Neurotechnology",
+			"Specification-Version": project.version,
+			"Implementation-Title": project.description,
+			"Implementation-Version": project.version,
+			"Implementation-Vendor": "Neurotechnology",
+			"Codebase": "*",
+			"Permissions": "all-permissions",
+		)
+	}
+}
+
+gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:deprecation"
+    }
+}
+
+// Java helper methods
+
+/**
+ * Collects all jars in productBinJavaDir into a String.
+ */
+String generateClasspath() {
+	StringBuilder classpath = new StringBuilder();
+	for (def dependency : configurations.runtime.allDependencies) {
+		classpath.append(dependency.getName()).append(".jar ");
+	}
+	return classpath.toString();
+}
+
+	private static String toUpperCase(String word) {
+		switch(word) {
+		case "sqlite": return "SQLite";
+		case "nimage": return "NImage";
+		case "ntemplate": return "NTemplate";
+		case "nfrecord": return "NFRecord";
+		case "nlrecord": return "NLRecord";
+		case "nerecord": return "NERecord";
+		case "nsrecord": return "NSRecord";
+		case "antemplate": return "ANTemplate";
+		case "fcrecord": return "FCRecord";
+		case "firecord": return "FIRecord";
+		case "fmrecord": return "FMRecord";
+		case "iirecord": return "IIRecord";
+		case "nfiq": return "NFIQ";
+		case "wsq": return "WSQ";
+		case "cbeff": return "CBEFF";
+		case "id": return "ID";
+		default: return word.substring(0, 1).toUpperCase() + word.substring(1);
+		}
+	}
+
+	private static String artifactNameToUpperCamelCase(String projectName) {
+		String[] words = projectName.split("-");
+		StringBuilder sb = new StringBuilder(projectName.length());
+		for (String word : words) {
+			sb.append(toUpperCase(word));
+		}
+		return sb.toString();
+	}
+
+// ============================================================================
+// Building
+// ============================================================================
+
+// Resources
+
+sourceSets.main {
+	output.resourcesDir = "${buildDir}/resources"
+}
+
+// Copy common images to project build directory so thay can be packed in jar.
+task prepareResources(type: Copy) {
+	from "${project.productRootDir}/Resources"
+	include "Logo16x16.png"
+	into file("${project.buildDir}/resources/images")
+}
+tasks.processResources.dependsOn(prepareResources)
+
+// Bin
+
+// Copy jar to product bin directory.
+task copyJar(type: Copy) {
+	from jar
+	into project.productBinJavaDir
+}
+tasks.build.dependsOn(copyJar)
+
+// Copy scripts to product bin directory.
+task copyScripts(type: Copy) {
+	from project.projectScriptSourceDir
+	into project.productBinJavaDir
+	include "**/*.bat"
+	include "**/*.sh"
+}
+tasks.build.dependsOn(copyScripts)
+
+task copyRuntimeDependencies(type: Copy) {
+	from configurations.runtime
+	into project.productBinJavaDir
+	exclude "**/neurotec-*.jar"
+	exclude "**/jna.jar"
+	rename '(.*)-[0-9]+\\..*.jar', '$1.jar'
+}
+tasks.build.dependsOn(copyRuntimeDependencies)
+
+// Also delete all project related files from product bin directory.
+clean {
+	delete fileTree(dir: project.productBinJavaDir , include: "${archivesBaseName}*.*")
+}
+
+// ============================================================================
+// Dependencies
+// ============================================================================
+
+
+dependencies {
+	project.ext.modules = [
+		"commons-io":			"commons-io:commons-io:2.4",
+		"commons-logging":		"commons-logging:commons-logging:1.1.1",
+		"simple-xml":			"org.simpleframework:simple-xml:2.6.2",
+		"mysql-connector-java": "mysql:mysql-connector-java:5.1.18",
+		"sqlite-jdbc":			"org.xerial:sqlite-jdbc:3.7.2",
+		"junit":				"junit:junit:4.10",
+	]
+
+}
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+	flatDir {
+		dirs "${project.productBinJavaDir}/"
+	}
+}
+
+// ============================================================================
+// Export methods
+// ============================================================================
+
+ext {
+	generateClasspath = this.&generateClasspath
+	artifactNameToUpperCamelCase = this.&artifactNameToUpperCamelCase
+}

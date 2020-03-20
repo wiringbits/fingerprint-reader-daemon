@@ -1,0 +1,22 @@
+project.description = project.name
+
+apply plugin: 'application'
+apply from: "../buildCommon/common.gradle"
+mainClassName = artifactNameToUpperCamelCase(project.name)
+group = "com.neurotec.tutorials"
+tasks.prepareResources.setEnabled(false)
+tasks.copyScripts.setEnabled(false)
+
+dependencies {
+	compile ":neurotec-media"
+	compile ":neurotec-media-processing"
+	compile ":neurotec-biometrics"
+	compile ":neurotec-biometrics-client"
+	compile ":neurotec-devices"
+	compile "com.sparkjava:spark-core:2.8.0"
+    compile "com.sparkjava:spark-kotlin:1.0.0-alpha"
+	compile 'org.json:json:20171018'
+	compileOnly 'org.projectlombok:lombok:1.18.8'
+	annotationProcessor 'org.projectlombok:lombok:1.18.8'
+	compile project(":bio-utils")
+}
