@@ -64,7 +64,7 @@ public final class EnrollFingerFromScannerBiometric {
 			System.out.println("Capturing....");
 			NBiometricStatus status = biometricClient.capture(subject);
 			if (status != NBiometricStatus.OK) {
-				System.out.format("Failed to capture: $s\n", status);
+				System.out.format("Failed to capture: %s\n", status);
 				throw new Exception("Failed to capture");
 			}
 
