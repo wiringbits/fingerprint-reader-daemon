@@ -6,6 +6,6 @@ apply from: new File(project.baseScriptDir, "/common.gradle")
 dependencies {
 	compile ":neurotec-core"
 	compile ":neurotec-licensing"
-	compile ":jna"
+	compile 'net.java.dev.jna:jna:5.5.0'
 	compile project.modules."commons-io"
 }
