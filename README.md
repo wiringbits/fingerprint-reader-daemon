@@ -44,7 +44,21 @@ You can stop the service with `./pg.exe -uninstall`
 #### Run the daemon
 Be sure to keep your fingerprint reader connected, and make sure that the necessary drivers are installed, you can try the SDK examples to make sure that your computer can read the fingerprints.
 
-We assume you already cloned our project, then, `gradle run` should be enough.
+We assume you already cloned our project, then:
+- Create the directories `Bin/Java`
+- Copy the necessary libraries from the official SDK (on `$SDKDIR/Bin/Java` to `Bin/Java`)
+
+```
+neurotec-biometrics-client.jar
+neurotec-licensing.jar
+neurotec-biometrics.jar
+neurotec-media.jar
+neurotec-core.jar
+neurotec-media-processing.jar
+neurotec-devices.jar
+```
+
+After that, `gradle run` should be enough.
 
 
 #### Troubleshooting
@@ -55,6 +69,10 @@ cp $SDKDIR/Bin/Win64_x64/*.dll enroll-finger-from-scanner/build/classes/java/mai
 cp $SDKDIR/Bin/Win64_x64/FScanners/NdmDigitalPersonaUareU/*.dll enroll-finger-from-scanner/build/classes/java/main
 cp -r $SDKDIR/Bin/Data enroll-finger-from-scanner/build/classes/java/main
 ```
+
+When you see the fingerprint reader connected but it's not detected by the app, it's likely a driver problem, be sure to install the official custom drivers from Neurotechnology, running one of the official examples is the best way to make sure your environment is setup properly, like `Neurotec_Biometric_11_1_SDK/Bin/Java
+simple-faces-sample.bat`, if this example can't read a fingerprint, this app won't be able either.
+
 
 ## Get a fingerprint
 You can use any http client (like postman, httpie, or even your webapp) to execute the following request `POST localhost:1212/fingerprints`, which will read a fingerprint from the connected device.
